@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace Flour
 {
@@ -52,34 +53,71 @@ namespace Flour
                             part.rotation = reader.ReadSingle();
                             part.flipHorizontal = reader.ReadBoolean();
                             part.flipVertical = reader.ReadBoolean();
-                            // part.multiplyColor =
 
-                            reader.ReadByte();
-                            reader.ReadByte();
-                            reader.ReadByte();
-                            
-                            reader.ReadByte();
-                            reader.ReadByte();
-                            reader.ReadByte();
-                            
+                            part.multiplyColor = new Color(reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
+                            part.screenColor = new Color(reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
+
                             part.opacity = reader.ReadByte();
 
                             for (int k = 0; k < 12; k++)
                             {
-                                reader.Read(); // unknown data
+                                reader.ReadByte(); // unknown data
                             }
-                            
-                            reader.ReadByte();
+
+                            part.designationID = reader.ReadByte();
                             reader.ReadInt16(); // unknown
-                            reader.ReadSingle();
-                            reader.ReadSingle();
-                            reader.ReadSingle();
-                            reader.ReadSingle();
+                            StereoDepth stereoDepth = new StereoDepth();
+                            stereoDepth.topLeft = reader.ReadSingle();
+                            stereoDepth.bottomLeft = reader.ReadSingle();
+                            stereoDepth.topRight = reader.ReadSingle();
+                            stereoDepth.bottomRight = reader.ReadSingle();
+                            part.depth = stereoDepth;
 
                             sprite.parts.Add(part);
-                            Console.WriteLine(posInTexture.x);
                         }
                         sprites.Add(sprite);
+                    }
+
+                    var animCount = reader.ReadInt32();
+                    for (int i = 0; i < animCount; i++)
+                    {
+                        List<byte> bytes = new List<byte>();
+                        var size = reader.ReadByte();
+                        for (int k = 0; k < size; k++)
+                        {
+                            bytes.Add(reader.ReadByte());
+                        }
+                        var paddingSize = 4 - ((size + 1) % 4);
+                        for (int k = 0; k < paddingSize; k++)
+                        {
+                            reader.ReadByte();
+                        }
+                        string final = Encoding.UTF8.GetString(bytes.ToArray());
+                        Console.WriteLine(final);
+
+                        Animation animation = new Animation();
+                        animation.name = final;
+                        animation.interpolation = reader.ReadInt32();
+                        var stepCount = reader.ReadUInt32();
+                        for (int j = 0; j < stepCount; j++)
+                        {
+                            AnimationStep step = new AnimationStep();
+                            step.sprite = reader.ReadUInt16();
+                            step.duration = reader.ReadUInt16();
+                            step.posX = reader.ReadInt16();
+                            step.posY = reader.ReadInt16();
+                            step.depth = reader.ReadSingle();
+                            step.scaleX = reader.ReadSingle();
+                            step.scaleY = reader.ReadSingle();
+                            step.rotation = reader.ReadSingle();
+                            step.multiplyColor = new Color(reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
+                            reader.ReadByte();
+                            reader.ReadByte();
+                            reader.ReadByte();
+                            step.opacity = reader.ReadUInt16();
+                            animation.steps.Add(step);
+                        }
+                        animations.Add(animation);
                     }
                 }
                 finally
@@ -109,6 +147,7 @@ namespace Flour
         public Color multiplyColor;
         public Color screenColor;
         public byte opacity;
+        public byte designationID;
         public StereoDepth depth;
     }
 
@@ -128,10 +167,11 @@ namespace Flour
         public float bottomRight;
     }
 
-    public struct Animation
+    public class Animation
     {
-        public string name;
+        public string? name;
         public int interpolation;
+        public List<AnimationStep> steps = new List<AnimationStep>();
     }
 
     public struct AnimationStep
@@ -145,13 +185,22 @@ namespace Flour
         public float scaleY;
         public float rotation;
         public Color multiplyColor;
+        public byte unknown1;
+        public byte unknown2;
         public ushort opacity;
     }
 
     public struct Color
     {
         public byte red;
-        public byte blue;
         public byte green;
+        public byte blue;
+
+        public Color(byte red, byte green, byte blue)
+        {
+            this.red = red;
+            this.green = green;
+            this.blue = blue;
+        }
     }
 }
