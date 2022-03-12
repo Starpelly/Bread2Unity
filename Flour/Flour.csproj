@@ -4,6 +4,12 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Authors>Starpelly</Authors>
+    <Company />
+    <Description>BCCAD is a format used by the video game Rhythm Heaven Megamix.
+Serializes and deserializes BCCAD files to and from JSON, can also be used as a standalone BCCAD serialization library.</Description>
+    <PackageProjectUrl>https://github.com/Starpelly/FlourSharp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Starpelly/FlourSharp</RepositoryUrl>
   </PropertyGroup>
 
 </Project>

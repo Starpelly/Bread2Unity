@@ -1,7 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿//------------------------------------------------------------
+// FlourSharp
+// Homepage: https://github.com/Starpelly/FlourSharp
+// MIT License (you have to mention that you use this)
+//------------------------------------------------------------
+
 using System.Text;
 
 namespace Flour
@@ -14,23 +16,19 @@ namespace Flour
         public List<Sprite> sprites = new List<Sprite>();
         public List<Animation> animations = new List<Animation>();
 
-        public BCCAD()
+        public static BCCAD FromBCCAD(string fileLocation)
         {
-            FromBCCAD();
-        }
+            BCCAD bCCAD = new BCCAD();
 
-        public void FromBCCAD()
-        {
-            byte[] data = File.ReadAllBytes(@"C:\Users\Braedon\Desktop\RHModding\RomFS\cellanim\arc\batter_00.bccad");
+            byte[] data = File.ReadAllBytes(fileLocation);
             using (Stream stream = new MemoryStream(data))
             {
                 BinaryReader reader = new BinaryReader(stream);
-                // var startByte = stream.ReadByte();
                 try
                 {
-                    timestamp = reader.ReadUInt32();
-                    textureWidth = reader.ReadUInt16();
-                    textureHeight = reader.ReadUInt16();
+                    bCCAD.timestamp = reader.ReadUInt32();
+                    bCCAD.textureWidth = reader.ReadUInt16();
+                    bCCAD.textureHeight = reader.ReadUInt16();
                     var spriteCount = reader.ReadUInt32();
                     for (int i = 0; i < spriteCount; i++)
                     {
@@ -75,7 +73,7 @@ namespace Flour
 
                             sprite.parts.Add(part);
                         }
-                        sprites.Add(sprite);
+                        bCCAD.sprites.Add(sprite);
                     }
 
                     var animCount = reader.ReadInt32();
@@ -93,7 +91,6 @@ namespace Flour
                             reader.ReadByte();
                         }
                         string final = Encoding.UTF8.GetString(bytes.ToArray());
-                        Console.WriteLine(final);
 
                         Animation animation = new Animation();
                         animation.name = final;
@@ -117,7 +114,7 @@ namespace Flour
                             step.opacity = reader.ReadUInt16();
                             animation.steps.Add(step);
                         }
-                        animations.Add(animation);
+                        bCCAD.animations.Add(animation);
                     }
                 }
                 finally
@@ -126,6 +123,12 @@ namespace Flour
                         reader.Close();
                 }
             }
+            return bCCAD;
+        }
+
+        public static byte[] ToBCCAD()
+        {
+            return new byte[0];
         }
     }
 
