@@ -1,4 +1,2 @@
-# FlourSharp
-Serializes and deserializes BCCAD files to and from JSON, can also be used as a standalone BCCAD serialization library.
-
-Rewritten entirely from scratch, based on https://github.com/patataofcourse/flour
+# Bread2Unity
+Importer that turns the BRCAD and BCCAD animations to Unity animations.
